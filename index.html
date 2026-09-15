@@ -163,7 +163,46 @@ const programData = [
     { week: 4, label: "Semaine 4 (Allégée)", charge: "Légère", 
       req: "Volume réduit de 20% sur la S3", 
       opt: "Défi ludique : Faire la séance en musique en suivant le rythme." },
-    // Les semaines 5 à 14 s'ajoutent selon le même schéma
+    { week: 5, label: "Semaine 5", charge: "Modérée",
+  req: "Squat (3x15), Fentes (3x12/j), Chaise (3x35s), Gainage (3x30s)",
+  opt: "Marche rapide 30 min." },
+
+{ week: 6, label: "Semaine 6", charge: "Modérée",
+  req: "Squat (3x15), Fentes (3x15/j), Pont fessier (3x20), Gainage (3x35s)",
+  opt: "Vélo ou marche 35 min." },
+
+{ week: 7, label: "Semaine 7", charge: "Soutenue",
+  req: "Squat (3x18), Fentes (3x15/j), Chaise (3x40s), Gainage (3x40s)",
+  opt: "Jogging 20 min." },
+
+{ week: 8, label: "Semaine 8 (Allégée)", charge: "Légère",
+  req: "Volume réduit de 25%",
+  opt: "Mobilité et étirements." },
+
+{ week: 9, label: "Semaine 9", charge: "Soutenue",
+  req: "Squat (4x15), Fentes (3x15/j), Chaise (4x45s), Gainage (4x45s)",
+  opt: "Escaliers 15 min." },
+
+{ week: 10, label: "Semaine 10", charge: "Soutenue",
+  req: "Squat sauté léger (3x10), Fentes (3x15/j), Gainage (4x45s)",
+  opt: "Jogging 25 min." },
+
+{ week: 11, label: "Semaine 11", charge: "Élevée",
+  req: "Circuit jambes + gainage complet",
+  opt: "Vélo 45 min." },
+
+{ week: 12, label: "Semaine 12", charge: "Élevée",
+  req: "Circuit ski : squat, fentes, chaise, gainage",
+  opt: "Montée d'escaliers." },
+
+{ week: 13, label: "Semaine 13", charge: "Pic",
+  req: "Simulation journée ski",
+  opt: "Cardio léger 30 min." },
+
+{ week: 14, label: "Semaine 14 (Affûtage)", charge: "Réduction",
+  req: "Volume réduit de 50%",
+  opt: "Mobilité et récupération." }
+``
 ];
 
 let selectedWeek = null;
@@ -174,7 +213,11 @@ function renderSchedule() {
     container.innerHTML = '';
 
     programData.forEach(item => {
-        const isCurrent = item.week === 1; // S1 = Semaine du 14-15 Septembre 2026
+        const startDate = new Date("2026-09-15");
+const today = new Date();
+const diffWeeks = Math.floor((today - startDate) / (1000 * 60 * 60 * 24 * 7)) + 1;
+
+const isCurrent = item.week === diffWeeks;
         const reqDone = localStorage.getItem(`w${item.week}_req_done`) === 'true';
         const optDone = localStorage.getItem(`w${item.week}_opt_done`) === 'true';
 
