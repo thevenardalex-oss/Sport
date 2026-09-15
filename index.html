@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programme Ski Alpin 2026</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #0284c7;
+            --accent-success: #16a34a;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+        }
+        header {
+            text-align: center;
+            padding: 10px 0 20px 0;
+            border-bottom: 1px solid #334155;
+        }
+        .stats-summary {
+            display: flex;
+            justify-content: space-around;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+        .stat-box { text-align: center; }
+        .stat-val { font-size: 1.4rem; font-weight: bold; color: var(--accent); }
+        .stat-lbl { font-size: 0.8rem; color: var(--text-muted); }
+
+        .week-row {
+            background: var(--card-bg);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            padding: 12px;
+        }
+        .week-header {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .week-current { color: #38bdf8; }
+        .exercises-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .ex-card {
+            background: #334155;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .ex-card.done {
+            border-color: var(--accent-success);
+            background: #064e3b;
+        }
+        
+        /* Modal Popup */
+        .modal {
+            display: none;
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .btn-success { background: var(--accent-success); }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: white;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Ski Alpin 2026 ⛷️</h1>
+    <p style="font-size: 0.85rem; color: var(--text-muted);">15/09/2026 - 20/12/2026 (14 Semaines)</p>
+</header>
+
+<div class="stats-summary">
+    <div class="stat-box">
+        <div class="stat-val" id="total-completed">0</div>
+        <div class="stat-lbl">Séances validées</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-val" id="total-time">0 min</div>
+        <div class="stat-lbl">Temps total</div>
+    </div>
+</div>
+
+<div id="schedule-container"></div>
+
+<!-- Modal Détails Séance -->
+<div id="exercise-modal" class="modal">
+    <div class="modal-content">
+        <h2 id="modal-title">Détails de la séance</h2>
+        <div id="modal-body"></div>
+        <hr style="border-color: #334155; margin: 15px 0;">
+        <label for="session-duration"><strong>Durée effectuée (minutes) :</strong></label>
+        <input type="number" id="session-duration" placeholder="ex: 25" min="1">
+        <button class="btn btn-success" onclick="saveSession()">Valider la séance</button>
+        <button class="btn" style="background:#64748b;" onclick="closeModal()">Fermer</button>
+    </div>
+</div>
+
+<script>
+// Données du programme transmis
+const programData = [
+    { week: 1, label: "Semaine 1 (15/09)", charge: "Légère", 
+      req: "Squat (2x12), Pont fessier (2x15), Chaise (2x20s), Gainage (2x20s), Équilibre (2x20s)", 
+      opt: "20 min marche rapide ou 10 min jogging + 10 min marche. Challenge: Équilibre 1 pied." },
+    { week: 2, label: "Semaine 2", charge: "Légère", 
+      req: "Squat (2x15), Pont fessier (2x15), Chaise (2x25s), Gainage (2x25s), Équilibre (2x20s)", 
+      opt: "Mobilité. Challenge: Fermer les yeux sur l'équilibre." },
+    { week: 3, label: "Semaine 3", charge: "Modérée", 
+      req: "Squat (2x15), Fentes arrière (2x10/j), Pont fessier (2x15), Chaise (2x25s), Gainage (2x25s)", 
+      opt: "Course continue 15 min. Challenge: 100 marches d'escalier dans la journée." },
+    { week: 4, label: "Semaine 4 (Allégée)", charge: "Légère", 
+      req: "Volume réduit de 20% sur la S3", 
+      opt: "Défi ludique : Faire la séance en musique en suivant le rythme." },
+    // Les semaines 5 à 14 s'ajoutent selon le même schéma
+];
+
+let selectedWeek = null;
+let selectedType = null; // 'req' ou 'opt'
+
+function renderSchedule() {
+    const container = document.getElementById('schedule-container');
+    container.innerHTML = '';
+
+    programData.forEach(item => {
+        const isCurrent = item.week === 1; // S1 = Semaine du 14-15 Septembre 2026
+        const reqDone = localStorage.getItem(`w${item.week}_req_done`) === 'true';
+        const optDone = localStorage.getItem(`w${item.week}_opt_done`) === 'true';
+
+        const row = document.createElement('div');
+        row.className = 'week-row';
+        row.innerHTML = `
+            <div class="week-header ${isCurrent ? 'week-current' : ''}">
+                <span>S${item.week} - ${item.label} ${isCurrent ? '(Semaine en cours)' : ''}</span>
+                <span style="font-size:0.75rem; font-weight:normal; opacity:0.8;">${item.charge}</span>
+            </div>
+            <div class="exercises-grid">
+                <div class="ex-card ${reqDone ? 'done' : ''}" onclick="openModal(${item.week}, 'req')">
+                    📌 Obligatoire ${reqDone ? '✓' : ''}
+                </div>
+                <div class="ex-card ${optDone ? 'done' : ''}" onclick="openModal(${item.week}, 'opt')">
+                    ⚡ Optionnelle ${optDone ? '✓' : ''}
+                </div>
+            </div>
+        `;
+        container.appendChild(row);
+    });
+    updateStats();
+}
+
+function openModal(week, type) {
+    selectedWeek = week;
+    selectedType = type;
+    const data = programData.find(w => w.week === week);
+    
+    document.getElementById('modal-title').innerText = `Semaine ${week} - ${type === 'req' ? 'Obligatoire' : 'Optionnelle'}`;
+    document.getElementById('modal-body').innerText = type === 'req' ? data.req : data.opt;
+    
+    const savedTime = localStorage.getItem(`w${week}_${type}_time`) || '';
+    document.getElementById('session-duration').value = savedTime;
+    
+    document.getElementById('exercise-modal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('exercise-modal').style.display = 'none';
+}
+
+function saveSession() {
+    const duration = parseInt(document.getElementById('session-duration').value) || 0;
+    localStorage.setItem(`w${selectedWeek}_${selectedType}_done`, 'true');
+    localStorage.setItem(`w${selectedWeek}_${selectedType}_time`, duration);
+    
+    closeModal();
+    renderSchedule();
+}
+
+function updateStats() {
+    let totalCompleted = 0;
+    let totalTime = 0;
+
+    programData.forEach(item => {
+        ['req', 'opt'].forEach(type => {
+            if (localStorage.getItem(`w${item.week}_${type}_done`) === 'true') {
+                totalCompleted++;
+                totalTime += parseInt(localStorage.getItem(`w${item.week}_${type}_time`) || 0);
+            }
+        });
+    });
+
+    document.getElementById('total-completed').innerText = totalCompleted;
+    document.getElementById('total-time').innerText = totalTime + ' min';
+}
+
+renderSchedule();
+</script>
+</body>
+</html>
