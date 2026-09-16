@@ -1,19 +1,27 @@
-const CACHE_NAME = "ski2026-v1";
-
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll([
-        "./",
-        "./index.html"
-      ]);
-    })
-  );
-});
-
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
-  );
-});
+{
+  "name": "Programme Ski Alpin 2026",
+  "short_name": "Ski 2026",
+  "description": "Programme de préparation physique au ski alpin avec suivi des séances.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0284c7",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "dir": "auto",
+  "lang": "fr",
+  "categories": [
+    "sports"
+  ]
+}
